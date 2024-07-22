@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -72,6 +73,8 @@ dependencies {
     implementation("io.insert-koin:koin-core:$koinVersion")
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    implementation("com.github.jens-muenker:uCrop-n-Edit:3.0.6")
 
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
 }
