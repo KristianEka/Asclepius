@@ -5,7 +5,14 @@
         <item name="colorPrimary">@color/sage</item>
         <item name="colorOnPrimary">@color/yellow</item>
         <item name="colorPrimaryContainer">@color/orange</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
     </style>
 
-    <style name="Theme.Asclepius" parent="Base.Theme.Asclepius" />
+    <style name="Theme.Asclepius" parent="Base.Theme.Asclepius">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="FullAppBar" parent="">
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
 </resources>

@@ -10,18 +10,24 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.dicoding.asclepius.R
 import com.dicoding.asclepius.data.source.local.entity.CancerEntity
 import com.dicoding.asclepius.databinding.ActivityMainBinding
 import com.dicoding.asclepius.helper.ImageClassifierHelper
 import com.yalantis.ucrop.UCrop
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.tensorflow.lite.task.vision.classifier.Classifications
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private val viewModel: MainViewModel by viewModel()
     private var currentImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +40,10 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             galleryButton.setOnClickListener { startGallery() }
             analyzeButton.setOnClickListener { analyzeImage() }
+            appBar.ibHistory.setOnClickListener {
+                val intent = Intent(this@MainActivity, HistoryActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 
@@ -87,42 +97,57 @@ class MainActivity : AppCompatActivity() {
     private fun analyzeImage() {
         // TODO: Menganalisa gambar yang berhasil ditampilkan.
 
-        binding.progressIndicator.visibility = View.VISIBLE
+        if (currentImageUri != null) {
+            binding.progressIndicator.visibility = View.VISIBLE
 
-        val imageClassifierHelper = ImageClassifierHelper(
-            context = this,
-            classifierListener = object : ImageClassifierHelper.ClassifierListener {
-                override fun onError(error: String) {
-                    binding.progressIndicator.visibility = View.GONE
-                    showToast(error)
-                }
+            val imageClassifierHelper = ImageClassifierHelper(
+                context = this,
+                classifierListener = object : ImageClassifierHelper.ClassifierListener {
+                    override fun onError(error: String) {
+                        binding.progressIndicator.visibility = View.GONE
+                        showToast(error)
+                    }
 
-                override fun onResults(results: List<Classifications>?) {
-                    runOnUiThread {
-                        results?.let {
-                            if (it.isNotEmpty() && it[0].categories.isNotEmpty()) {
-                                val classificationResult = it.first().categories.first()
+                    override fun onResults(results: List<Classifications>?) {
+                        runOnUiThread {
+                            results?.let {
+                                if (it.isNotEmpty() && it[0].categories.isNotEmpty()) {
+                                    val classificationResult = it.first().categories.first()
 
-                                if (currentImageUri != null) {
-                                    binding.progressIndicator.visibility = View.GONE
-                                    moveToResult(
-                                        CancerEntity(
-                                            imageUri = currentImageUri,
-                                            prediction = classificationResult.label,
-                                            confidenceScore = classificationResult.score
+                                    if (currentImageUri != null) {
+                                        binding.progressIndicator.visibility = View.GONE
+
+                                        val time = Calendar.getInstance().time
+                                        val formatter =
+                                            SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.US)
+                                        val currentTime = formatter.format(time)
+
+                                        moveToResult(
+                                            CancerEntity(
+                                                imageUri = currentImageUri.toString(),
+                                                predictionResult = classificationResult.label,
+                                                confidenceScore = classificationResult.score,
+                                                dateTaken = currentTime.toString()
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        )
-        imageClassifierHelper.classifyStaticImage(currentImageUri!!)
+            )
+            imageClassifierHelper.classifyStaticImage(currentImageUri!!)
+        } else {
+            showToast(getString(R.string.please_insert_the_image_file_first))
+        }
     }
 
     private fun moveToResult(cancerEntity: CancerEntity) {
+        viewModel.insertPredictionResult(cancerEntity)
+        showToast(getString(R.string.the_classification_result_has_been_saved))
+        binding.previewImageView.setImageResource(R.drawable.ic_place_holder)
+        currentImageUri = null
         val intent = Intent(this, ResultActivity::class.java)
         intent.putExtra(ResultActivity.EXTRA_CLASSIFICATION_RESULT, cancerEntity)
         startActivity(intent)

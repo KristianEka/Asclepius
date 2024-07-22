@@ -3,12 +3,16 @@ package com.dicoding.asclepius.view
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import com.dicoding.asclepius.data.source.local.entity.CancerEntity
 import com.dicoding.asclepius.databinding.ActivityResultBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
 
 class ResultActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityResultBinding
+    private val viewModel: ResultViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +29,11 @@ class ResultActivity : AppCompatActivity() {
 
         if (resultData != null) {
             binding.apply {
-                resultImage.setImageURI(resultData.imageUri)
-                val displayResult = "${resultData.prediction} " +
-                        NumberFormat.getPercentInstance().format(resultData.confidenceScore).trim()
+                resultImage.setImageURI(resultData.imageUri?.toUri())
+
+                val displayResult = "Result: ${resultData.predictionResult} " +
+                        NumberFormat.getPercentInstance().format(resultData.confidenceScore)
+                            .trim() + "\nTime taken: ${resultData.dateTaken}"
                 resultText.text = displayResult
             }
         }
