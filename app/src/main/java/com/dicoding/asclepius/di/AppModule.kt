@@ -55,7 +55,13 @@ val databaseModule = module {
 }
 
 val repositoryModule = module {
-    single<AppRepository> { AppRepositoryImpl(get()) }
+    single<AppRepository> {
+        AppRepositoryImpl(
+            get(),
+            get(),
+            androidContext()
+        )
+    }
 }
 
 val viewModelModule = module {

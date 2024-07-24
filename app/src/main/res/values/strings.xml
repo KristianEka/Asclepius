@@ -14,4 +14,6 @@
     <string name="no_data_can_be_displayed">No data can be displayed</string>
     <string name="cancer_image_classification">Cancer Image Classification</string>
     <string name="history_list">History List</string>
+    <string name="failed_to_display_top_headline_news">Failed to display top headline news</string>
+    <string name="news_images">News Images</string>
 </resources>

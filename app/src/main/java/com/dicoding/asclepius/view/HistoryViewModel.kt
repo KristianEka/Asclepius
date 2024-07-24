@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 class HistoryViewModel(
     private val repository: AppRepository
-) : ViewModel(){
+) : ViewModel() {
 
     fun getAllPredictionResult() = repository.getAllPredictionResult().asLiveData()
 
